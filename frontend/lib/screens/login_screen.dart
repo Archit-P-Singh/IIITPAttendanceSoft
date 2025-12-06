@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/student.dart';
-import 'student_home.dart';
+import 'student/student_main_screen.dart';
 import 'admin_dashboard.dart';
 import 'scanner_screen.dart';
+import 'auth/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String rollNo = _rollNoController.text.trim();
       String password = _passwordController.text.trim();
 
-      // Special case for mess staff scanner (still kept for backward compat if needed, or can be removed)
+      // Special case for mess staff scanner
       if (rollNo == 'scanner' && password == 'scanner') {
          Navigator.push(
           context,
@@ -47,9 +48,9 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (context) => const AdminDashboard()),
           );
         } else {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => StudentHomeScreen(student: student)),
+            MaterialPageRoute(builder: (context) => StudentMainScreen(student: student)),
           );
         }
       } else {
@@ -96,12 +97,27 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               obscureText: true,
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                  );
+                },
+                child: const Text('Forgot Password?'),
+              ),
+            ),
             const SizedBox(height: 20),
             _isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _login,
-                    child: const Text('Login'),
+                : SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      child: const Text('Login'),
+                    ),
                   ),
           ],
         ),
