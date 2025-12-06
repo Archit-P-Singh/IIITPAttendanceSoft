@@ -115,4 +115,55 @@ public class ReportService {
 
         return stats;
     }
+
+    public long countFunctioningDays(int year, int month) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        // Count distinct dates in attendance within range
+        return attendanceRepository.findAll().stream()
+                .filter(a -> !a.getDate().isBefore(start) && !a.getDate().isAfter(end))
+                .map(com.iiitp.attendance.model.Attendance::getDate)
+                .distinct()
+                .count();
+    }
+
+    public Map<String, Double> getDailyFinancialChart(int year, int month) {
+        Map<String, Double> chartData = new java.util.TreeMap<>(); // TreeMap for sorted dates
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        double dailyFee = messFeeService.getFee(year, month);
+
+        // Initialize all days with 0
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            chartData.put(date.toString(), 0.0);
+        }
+
+        attendanceRepository.findAll().stream()
+                .filter(a -> !a.getDate().isBefore(start) && !a.getDate().isAfter(end) && a.isPresent())
+                .forEach(a -> {
+                    String dateKey = a.getDate().toString();
+                    // Each meal is 0.25 of daily fee (simplified assumption)
+                    chartData.put(dateKey, chartData.get(dateKey) + (dailyFee / 4.0));
+                });
+        return chartData;
+    }
+
+    public Map<String, Long> getMealWiseStats(int year, int month) {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("BREAKFAST", 0L);
+        stats.put("LUNCH", 0L);
+        stats.put("TEA", 0L);
+        stats.put("DINNER", 0L);
+
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        attendanceRepository.findAll().stream()
+                .filter(a -> !a.getDate().isBefore(start) && !a.getDate().isAfter(end) && a.isPresent())
+                .forEach(a -> {
+                    String meal = a.getMealType().toString();
+                    stats.put(meal, stats.getOrDefault(meal, 0L) + 1);
+                });
+        return stats;
+    }
 }

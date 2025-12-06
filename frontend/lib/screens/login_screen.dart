@@ -3,7 +3,9 @@ import '../services/api_service.dart';
 import '../models/student.dart';
 import 'student/student_main_screen.dart';
 import 'admin_dashboard.dart';
+import 'mess_manager/mess_manager_main_screen.dart';
 import 'scanner_screen.dart';
+import 'auth/forgot_password_screen.dart';
 import 'auth/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,8 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
             context,
             MaterialPageRoute(builder: (context) => const AdminDashboard()),
           );
+        } else if (student.role == 'MESS_MANAGER') {
+           Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MessManagerMainScreen(manager: student)),
+          );
         } else {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => StudentMainScreen(student: student)),
           );

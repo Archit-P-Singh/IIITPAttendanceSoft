@@ -6,6 +6,7 @@ import 'services/api_service.dart';
 import 'models/student.dart';
 import 'screens/student/student_main_screen.dart';
 import 'screens/admin_dashboard.dart';
+import 'screens/mess_manager/mess_manager_main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,8 @@ class MyApp extends StatelessWidget {
     if (initialUser != null) {
       if (initialUser!.role == 'ADMIN') {
         return const AdminDashboard();
+      } else if (initialUser!.role == 'MESS_MANAGER') {
+        return MessManagerMainScreen(manager: initialUser!);
       } else {
         return StudentMainScreen(student: initialUser!);
       }

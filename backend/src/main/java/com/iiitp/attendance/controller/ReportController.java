@@ -34,8 +34,21 @@ public class ReportController {
     }
 
     @GetMapping("/attendance/daily")
-    public ResponseEntity<Map<String, Long>> getDailyAttendanceStats(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return ResponseEntity.ok(reportService.getDailyAttendanceStats(date));
+    public ResponseEntity<Map<String, Long>> getDailyAttendanceStats(@RequestParam String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        return ResponseEntity.ok(reportService.getDailyAttendanceStats(localDate));
+    }
+
+    @GetMapping("/financial/daily-chart")
+    public ResponseEntity<Map<String, Double>> getDailyFinancialChart(@RequestParam int year, @RequestParam int month) {
+        // For simplicity, we can reuse getDailyAttendanceStats for each day and
+        // multiply by fee
+        // But let's ask ReportService for this specific data structure
+        return ResponseEntity.ok(reportService.getDailyFinancialChart(year, month));
+    }
+
+    @GetMapping("/stats/meal-wise")
+    public ResponseEntity<Map<String, Long>> getMealWiseStats(@RequestParam int year, @RequestParam int month) {
+        return ResponseEntity.ok(reportService.getMealWiseStats(year, month));
     }
 }
