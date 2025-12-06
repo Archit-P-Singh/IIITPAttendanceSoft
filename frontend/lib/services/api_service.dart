@@ -7,23 +7,52 @@ class ApiService {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator/Web
   static const String baseUrl = 'http://localhost:8080/api'; 
 
-  Future<Student?> login(String rollNo) async {
+  Future<Student?> login(String rollNo, String password) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/students'));
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'rollNo': rollNo, 'password': password}),
+      );
+      
       if (response.statusCode == 200) {
-        List<dynamic> body = jsonDecode(response.body);
-        List<Student> students = body.map((dynamic item) => Student.fromJson(item)).toList();
-        try {
-          return students.firstWhere((student) => student.rollNo == rollNo);
-        } catch (e) {
-          return null;
-        }
+        return Student.fromJson(jsonDecode(response.body));
       } else {
-        throw Exception('Failed to load students');
+        return null;
       }
     } catch (e) {
       print("Error in login: $e");
       rethrow;
+    }
+  }
+
+  Future<List<Student>> getAllStudents() async {
+    final response = await http.get(Uri.parse('$baseUrl/students'));
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((dynamic item) => Student.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load students');
+    }
+  }
+
+  Future<Student> addStudent(Student student) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/students'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(student.toJson()),
+    );
+    if (response.statusCode == 200) {
+      return Student.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to add student');
+    }
+  }
+
+  Future<void> deleteStudent(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/students/$id'));
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete student');
     }
   }
 

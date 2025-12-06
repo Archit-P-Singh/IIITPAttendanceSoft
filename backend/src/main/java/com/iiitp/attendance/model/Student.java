@@ -24,4 +24,11 @@ public class Student {
     private String qrCode;
 
     private String department;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 }

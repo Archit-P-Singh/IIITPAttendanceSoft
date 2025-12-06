@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/student.dart';
 import 'student_home.dart';
+import 'admin_dashboard.dart';
 import 'scanner_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _rollNoController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
@@ -23,7 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       String rollNo = _rollNoController.text.trim();
-      if (rollNo == 'admin') {
+      String password = _passwordController.text.trim();
+
+      // Special case for mess staff scanner (still kept for backward compat if needed, or can be removed)
+      if (rollNo == 'scanner' && password == 'scanner') {
          Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ScannerScreen()),
@@ -31,17 +36,25 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      Student? student = await _apiService.login(rollNo);
+      Student? student = await _apiService.login(rollNo, password);
+      
+      if (!mounted) return;
+
       if (student != null) {
-        if (!mounted) return;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => StudentHomeScreen(student: student)),
-        );
+        if (student.role == 'ADMIN') {
+           Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminDashboard()),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StudentHomeScreen(student: student)),
+          );
+        }
       } else {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Student not found')),
+          const SnackBar(content: Text('Invalid credentials')),
         );
       }
     } catch (e) {
@@ -70,9 +83,18 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _rollNoController,
               decoration: const InputDecoration(
-                labelText: 'Enter Roll No (or "admin" for scanner)',
+                labelText: 'Roll No / Username',
                 border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
             ),
             const SizedBox(height: 20),
             _isLoading

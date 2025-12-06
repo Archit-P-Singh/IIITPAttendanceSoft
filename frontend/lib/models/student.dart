@@ -4,6 +4,8 @@ class Student {
   final String rollNo;
   final String qrCode;
   final String? department;
+  final String? password;
+  final String? role;
 
   Student({
     this.studentId,
@@ -11,6 +13,8 @@ class Student {
     required this.rollNo,
     required this.qrCode,
     this.department,
+    this.password,
+    this.role,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,8 @@ class Student {
       rollNo: json['rollNo'],
       qrCode: json['qrCode'],
       department: json['department'],
+      password: json['password'],
+      role: json['role'],
     );
   }
 
@@ -30,6 +36,8 @@ class Student {
       'rollNo': rollNo,
       'qrCode': qrCode,
       'department': department,
+      'password': password,
+      'role': role,
     };
   }
 }

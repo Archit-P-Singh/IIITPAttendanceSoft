@@ -34,6 +34,30 @@ public class StudentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable Integer id, @RequestBody Student studentDetails) {
+        return studentService.getStudentById(id)
+                .map(student -> {
+                    student.setName(studentDetails.getName());
+                    student.setDepartment(studentDetails.getDepartment());
+                    if (studentDetails.getPassword() != null && !studentDetails.getPassword().isEmpty()) {
+                        student.setPassword(studentDetails.getPassword());
+                    }
+                    return ResponseEntity.ok(studentService.saveStudent(student));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/regenerate-qr")
+    public ResponseEntity<Student> regenerateQrCode(@PathVariable Integer id) {
+        return studentService.getStudentById(id)
+                .map(student -> {
+                    student.setQrCode("QR_" + student.getRollNo() + "_" + System.currentTimeMillis());
+                    return ResponseEntity.ok(studentService.saveStudent(student));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Integer id) {
         studentService.deleteStudent(id);
