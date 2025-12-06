@@ -42,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (student != null) {
+        await _apiService.saveUser(student);
         if (student.role == 'ADMIN') {
            Navigator.push(
             context,

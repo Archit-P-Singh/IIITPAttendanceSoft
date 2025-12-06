@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/student.dart';
 import '../models/attendance.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator/Web
@@ -74,5 +75,43 @@ class ApiService {
     } else {
       throw Exception('Failed to get rebate');
     }
+  }
+  Future<bool> verifyOtp(String rollNo, String otp) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/verify-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'rollNo': rollNo, 'otp': otp}),
+    );
+    return response.statusCode == 200;
+  }
+
+  Future<void> saveUser(Student student) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user', jsonEncode(student.toJson()));
+    await prefs.setString('login_time', DateTime.now().toIso8601String());
+  }
+
+  Future<Student?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userStr = prefs.getString('user');
+    final loginTimeStr = prefs.getString('login_time');
+
+    if (userStr != null && loginTimeStr != null) {
+      final loginTime = DateTime.parse(loginTimeStr);
+      final now = DateTime.now();
+      // Check if session is valid (e.g., 30 days)
+      if (now.difference(loginTime).inDays < 30) {
+        return Student.fromJson(jsonDecode(userStr));
+      } else {
+        await logout(); // Expired
+      }
+    }
+    return null;
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user');
+    await prefs.remove('login_time');
   }
 }

@@ -62,10 +62,17 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w300),
             ),
             const SizedBox(height: 40),
-            QrImageView(
-              data: widget.student.qrCode,
-              version: QrVersions.auto,
-              size: 250.0,
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: QrImageView(
+                data: widget.student.qrCode,
+                version: QrVersions.auto,
+                size: 250.0,
+              ),
             ),
             const SizedBox(height: 20),
             Text(

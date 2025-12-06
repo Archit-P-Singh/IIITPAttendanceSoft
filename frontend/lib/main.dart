@@ -2,20 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
 import 'providers/theme_provider.dart';
+import 'services/api_service.dart';
+import 'models/student.dart';
+import 'screens/student/student_main_screen.dart';
+import 'screens/admin_dashboard.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final ApiService apiService = ApiService();
+  final Student? user = await apiService.getUser();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: const MyApp(),
+      child: MyApp(initialUser: user),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Student? initialUser;
+
+  const MyApp({super.key, this.initialUser});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +44,21 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: themeProvider.themeMode,
-          home: const LoginScreen(),
+          home: _getInitialScreen(),
         );
       },
     );
   }
+
+  Widget _getInitialScreen() {
+    if (initialUser != null) {
+      if (initialUser!.role == 'ADMIN') {
+        return const AdminDashboard();
+      } else {
+        return StudentMainScreen(student: initialUser!);
+      }
+    }
+    return const LoginScreen();
+  }
 }
+

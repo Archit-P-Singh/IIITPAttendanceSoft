@@ -55,6 +55,23 @@ public class AuthController {
                 .orElse(ResponseEntity.status(404).body("User not found"));
     }
 
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
+        String rollNo = request.get("rollNo");
+        String otp = request.get("otp");
+
+        return studentRepository.findByRollNo(rollNo)
+                .map(student -> {
+                    if (student.getOtp() != null && student.getOtp().equals(otp) &&
+                            student.getOtpExpiry().isAfter(java.time.LocalDateTime.now())) {
+                        return ResponseEntity.ok("OTP verified.");
+                    } else {
+                        return ResponseEntity.badRequest().body("Invalid or expired OTP.");
+                    }
+                })
+                .orElse(ResponseEntity.status(404).body("User not found"));
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String rollNo = request.get("rollNo");
