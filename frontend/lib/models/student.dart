@@ -6,6 +6,7 @@ class Student {
   final String? department;
   final String? password;
   final String? role;
+  final String? email;
 
   Student({
     this.studentId,
@@ -15,6 +16,7 @@ class Student {
     this.department,
     this.password,
     this.role,
+    this.email,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Student {
       department: json['department'],
       password: json['password'],
       role: json['role'],
+      email: json['email'],
     );
   }
 
@@ -38,6 +41,7 @@ class Student {
       'department': department,
       'password': password,
       'role': role,
+      'email': email,
     };
   }
 }

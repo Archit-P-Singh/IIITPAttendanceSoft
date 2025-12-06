@@ -50,8 +50,9 @@ public class AttendanceBackendApplication {
 				student.setDepartment("CSE");
 				student.setPassword("password");
 				student.setRole(com.iiitp.attendance.model.Role.STUDENT);
+				student.setEmail("test@example.com");
 				repository.save(student);
-				System.out.println("Added Student: Amar Singh (112315025) / password");
+				System.out.println("Added Student: Amar Singh (112315025) / password / test@example.com");
 			}
 		};
 	}

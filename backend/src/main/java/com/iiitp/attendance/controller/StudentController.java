@@ -43,6 +43,9 @@ public class StudentController {
                     if (studentDetails.getPassword() != null && !studentDetails.getPassword().isEmpty()) {
                         student.setPassword(studentDetails.getPassword());
                     }
+                    if (studentDetails.getEmail() != null && !studentDetails.getEmail().isEmpty()) {
+                        student.setEmail(studentDetails.getEmail());
+                    }
                     return ResponseEntity.ok(studentService.saveStudent(student));
                 })
                 .orElse(ResponseEntity.notFound().build());

@@ -20,18 +20,34 @@ public class ReportService {
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
     private final RebateService rebateService;
+    private final MessFeeService messFeeService;
 
     public ReportService(AttendanceRepository attendanceRepository, StudentRepository studentRepository,
-            RebateService rebateService) {
+            RebateService rebateService, MessFeeService messFeeService) {
         this.attendanceRepository = attendanceRepository;
         this.studentRepository = studentRepository;
         this.rebateService = rebateService;
+        this.messFeeService = messFeeService;
     }
 
     public Map<String, Object> getMonthlyFinancialReport(int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         int daysInMonth = yearMonth.lengthOfMonth();
-        double dailyFee = 100.0;
+
+        // Use dynamic fee for the month (assuming it's set for the whole month)
+        // In a real scenario, fee might change daily, but here we take the monthly
+        // config
+        double dailyFee = messFeeService.getFee(year, month); // Fallback
+        try {
+            // We can't easily inject MessFeeService here without circular dependency if not
+            // careful
+            // But ReportService depends on RebateService, not the other way around.
+            // Let's just use 100.0 for now or better, inject MessFeeService.
+        } catch (Exception e) {
+        }
+
+        // Wait, I should inject MessFeeService into ReportService too.
+
         double totalExpectedFee = 0;
         double totalRebate = 0;
 

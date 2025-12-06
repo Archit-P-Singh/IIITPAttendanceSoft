@@ -31,4 +31,10 @@ public class Student {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Column(unique = true)
+    private String email;
+
+    private String otp;
+    private java.time.LocalDateTime otpExpiry;
 }

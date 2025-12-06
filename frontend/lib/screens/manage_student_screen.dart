@@ -15,6 +15,7 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
   final _rollNoController = TextEditingController();
   final _deptController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
@@ -32,6 +33,7 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
           department: _deptController.text,
           password: _passwordController.text,
           role: 'STUDENT',
+          email: _emailController.text,
         );
 
         await _apiService.addStudent(newStudent);
@@ -76,6 +78,11 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
               TextFormField(
                 controller: _deptController,
                 decoration: const InputDecoration(labelText: 'Department'),
+              ),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
               ),
               TextFormField(
                 controller: _passwordController,

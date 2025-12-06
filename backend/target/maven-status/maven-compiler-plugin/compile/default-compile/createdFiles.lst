@@ -1,10 +1,14 @@
 com/iiitp/attendance/controller/AuthController.class
 com/iiitp/attendance/model/Attendance.class
+com/iiitp/attendance/repository/MessFeeRepository.class
 com/iiitp/attendance/controller/StudentController.class
+com/iiitp/attendance/service/EmailService.class
 com/iiitp/attendance/model/MealType.class
 com/iiitp/attendance/controller/ReportController.class
+com/iiitp/attendance/service/MessFeeService.class
 com/iiitp/attendance/model/Student.class
 com/iiitp/attendance/controller/AttendanceController.class
+com/iiitp/attendance/model/MessFee.class
 com/iiitp/attendance/AttendanceBackendApplication.class
 com/iiitp/attendance/repository/StudentRepository.class
 com/iiitp/attendance/repository/AttendanceRepository.class
@@ -12,4 +16,5 @@ com/iiitp/attendance/service/AttendanceService.class
 com/iiitp/attendance/service/ReportService.class
 com/iiitp/attendance/model/Role.class
 com/iiitp/attendance/service/RebateService.class
+com/iiitp/attendance/controller/MessFeeController.class
 com/iiitp/attendance/service/StudentService.class
