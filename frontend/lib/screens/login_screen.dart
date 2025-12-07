@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/student.dart';
 import 'student/student_main_screen.dart';
-import 'admin_dashboard.dart';
+import 'admin/admin_main_screen.dart';
 import 'mess_manager/mess_manager_main_screen.dart';
 import 'scanner_screen.dart';
-import 'auth/forgot_password_screen.dart';
 import 'auth/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (student.role == 'ADMIN') {
            Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AdminDashboard()),
+            MaterialPageRoute(builder: (context) => AdminMainScreen(admin: student)),
           );
         } else if (student.role == 'MESS_MANAGER') {
            Navigator.push(

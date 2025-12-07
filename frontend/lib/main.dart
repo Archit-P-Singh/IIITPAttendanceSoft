@@ -5,7 +5,7 @@ import 'providers/theme_provider.dart';
 import 'services/api_service.dart';
 import 'models/student.dart';
 import 'screens/student/student_main_screen.dart';
-import 'screens/admin_dashboard.dart';
+import 'screens/admin/admin_main_screen.dart';
 import 'screens/mess_manager/mess_manager_main_screen.dart';
 
 void main() async {
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
   Widget _getInitialScreen() {
     if (initialUser != null) {
       if (initialUser!.role == 'ADMIN') {
-        return const AdminDashboard();
+        return AdminMainScreen(admin: initialUser!);
       } else if (initialUser!.role == 'MESS_MANAGER') {
         return MessManagerMainScreen(manager: initialUser!);
       } else {
