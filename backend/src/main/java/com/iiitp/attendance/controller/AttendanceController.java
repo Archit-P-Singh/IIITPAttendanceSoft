@@ -48,4 +48,14 @@ public class AttendanceController {
         double rebate = rebateService.calculateDailyRebate(student, date);
         return ResponseEntity.ok(rebate);
     }
+
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<?> getAttendanceByStudent(@PathVariable Integer studentId) {
+        return ResponseEntity.ok(attendanceService.getAttendanceByStudent(studentId));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllAttendance() {
+        return ResponseEntity.ok(attendanceService.getAllAttendance());
+    }
 }

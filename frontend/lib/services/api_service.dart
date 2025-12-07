@@ -109,6 +109,50 @@ class ApiService {
     return null;
   }
 
+  Future<Student> updateStudent(Student student) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/students/${student.studentId}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(student.toJson()),
+    );
+    if (response.statusCode == 200) {
+      return Student.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to update student');
+    }
+  }
+
+  Future<Student> regenerateQr(int studentId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/students/$studentId/regenerate-qr'),
+    );
+    if (response.statusCode == 200) {
+      return Student.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to regenerate QR');
+    }
+  }
+
+  Future<List<Attendance>> getAttendanceByStudent(int studentId) async {
+    final response = await http.get(Uri.parse('$baseUrl/attendance/student/$studentId'));
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((dynamic item) => Attendance.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load attendance');
+    }
+  }
+
+  Future<List<Attendance>> getAllAttendance() async {
+    final response = await http.get(Uri.parse('$baseUrl/attendance/all'));
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      return body.map((dynamic item) => Attendance.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load all attendance');
+    }
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user');

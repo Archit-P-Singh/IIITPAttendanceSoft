@@ -3,7 +3,9 @@ import '../models/student.dart';
 import '../services/api_service.dart';
 
 class ManageStudentScreen extends StatefulWidget {
-  const ManageStudentScreen({super.key});
+  final Student? student;
+
+  const ManageStudentScreen({super.key, this.student});
 
   @override
   State<ManageStudentScreen> createState() => _ManageStudentScreenState();
@@ -18,6 +20,20 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
   final _emailController = TextEditingController();
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+  bool _isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.student != null) {
+      _isEditMode = true;
+      _nameController.text = widget.student!.name;
+      _rollNoController.text = widget.student!.rollNo;
+      _deptController.text = widget.student!.department ?? '';
+      _emailController.text = widget.student!.email ?? '';
+      // Password not pre-filled for security, only updated if entered
+    }
+  }
 
   void _saveStudent() async {
     if (_formKey.currentState!.validate()) {
@@ -26,20 +42,28 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
       });
 
       try {
-        Student newStudent = Student(
+        Student studentData = Student(
+          studentId: _isEditMode ? widget.student!.studentId : null,
           name: _nameController.text,
           rollNo: _rollNoController.text,
-          qrCode: 'QR_${_rollNoController.text}', // Auto-generate QR string
+          qrCode: _isEditMode ? widget.student!.qrCode : 'QR_${_rollNoController.text}',
           department: _deptController.text,
-          password: _passwordController.text,
+          password: _passwordController.text.isNotEmpty ? _passwordController.text : (_isEditMode ? widget.student!.password : ''),
           role: 'STUDENT',
           email: _emailController.text,
         );
 
-        await _apiService.addStudent(newStudent);
+        if (_isEditMode) {
+          await _apiService.updateStudent(studentData);
+        } else {
+          await _apiService.addStudent(studentData);
+        }
         
         if (!mounted) return;
         Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_isEditMode ? 'Student updated' : 'Student added')),
+        );
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +82,7 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Student')),
+      appBar: AppBar(title: Text(_isEditMode ? 'Edit Student' : 'Add Student')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -86,16 +110,18 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(
+                  labelText: _isEditMode ? 'Password (leave blank to keep current)' : 'Password',
+                ),
                 obscureText: true,
-                validator: (value) => value!.isEmpty ? 'Please enter password' : null,
+                validator: (value) => (!_isEditMode && (value == null || value.isEmpty)) ? 'Please enter password' : null,
               ),
               const SizedBox(height: 20),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _saveStudent,
-                      child: const Text('Save Student'),
+                      child: Text(_isEditMode ? 'Update Student' : 'Save Student'),
                     ),
             ],
           ),

@@ -63,4 +63,14 @@ public class AttendanceService {
         }
         return null;
     }
+
+    public java.util.List<Attendance> getAttendanceByStudent(int studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        return attendanceRepository.findByStudent(student);
+    }
+
+    public java.util.List<Attendance> getAllAttendance() {
+        return attendanceRepository.findAll();
+    }
 }

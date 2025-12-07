@@ -3,6 +3,8 @@ import '../models/student.dart';
 import '../services/api_service.dart';
 import 'manage_student_screen.dart';
 import 'scanner_screen.dart';
+import 'admin/admin_qr_view_screen.dart';
+import 'admin/admin_attendance_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -60,6 +62,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text('Admin Dashboard'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.list_alt),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminAttendanceScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: () {
               Navigator.push(
@@ -79,9 +90,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 return ListTile(
                   title: Text(student.name),
                   subtitle: Text('${student.rollNo} - ${student.department ?? "N/A"}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteStudent(student.studentId!),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.qr_code, color: Colors.blue),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminQrViewScreen(student: student)),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.history, color: Colors.green),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminAttendanceScreen(student: student)),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.orange),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ManageStudentScreen(student: student)),
+                          );
+                          _fetchStudents();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteStudent(student.studentId!),
+                      ),
+                    ],
                   ),
                 );
               },
