@@ -37,4 +37,8 @@ public class Student {
 
     private String otp;
     private java.time.LocalDateTime otpExpiry;
+
+    private Integer year;
+    private Integer semester;
+    private String hostel;
 }

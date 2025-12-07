@@ -45,19 +45,22 @@ class _LoginScreenState extends State<LoginScreen> {
       if (student != null) {
         await _apiService.saveUser(student);
         if (student.role == 'ADMIN') {
-           Navigator.push(
+           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => AdminMainScreen(admin: student)),
+            (route) => false,
           );
         } else if (student.role == 'MESS_MANAGER') {
-           Navigator.push(
+           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => MessManagerMainScreen(manager: student)),
+            (route) => false,
           );
         } else {
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => StudentMainScreen(student: student)),
+            (route) => false,
           );
         }
       } else {

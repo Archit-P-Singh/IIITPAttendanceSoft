@@ -15,10 +15,16 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _rollNoController = TextEditingController();
-  final _deptController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final ApiService _apiService = ApiService();
+  
+  String _role = 'STUDENT';
+  String _department = 'CSE';
+  String _hostel = 'BH1';
+  int _year = 1;
+  int _semester = 1;
+  
   bool _isLoading = false;
   bool _isEditMode = false;
 
@@ -29,9 +35,25 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
       _isEditMode = true;
       _nameController.text = widget.student!.name;
       _rollNoController.text = widget.student!.rollNo;
-      _deptController.text = widget.student!.department ?? '';
+      _passwordController.text = ''; // Don't show password
       _emailController.text = widget.student!.email ?? '';
-      // Password not pre-filled for security, only updated if entered
+      _role = widget.student!.role ?? 'STUDENT';
+      _department = widget.student!.department ?? 'CSE';
+      _hostel = widget.student!.hostel ?? 'BH1';
+      _year = widget.student!.year ?? 1;
+      _semester = widget.student!.semester ?? 1;
+    }
+    
+    // Listeners for auto-email
+    _rollNoController.addListener(_generateEmail);
+  }
+
+  void _generateEmail() {
+    if (_role == 'STUDENT') {
+      String roll = _rollNoController.text.trim();
+      if (roll.isNotEmpty) {
+        _emailController.text = '$roll@${_department.toLowerCase()}.iiitp.ac.in';
+      }
     }
   }
 
@@ -47,10 +69,13 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
           name: _nameController.text,
           rollNo: _rollNoController.text,
           qrCode: _isEditMode ? widget.student!.qrCode : 'QR_${_rollNoController.text}',
-          department: _deptController.text,
+          department: _department,
           password: _passwordController.text.isNotEmpty ? _passwordController.text : (_isEditMode ? widget.student!.password : ''),
-          role: 'STUDENT',
+          role: _role,
           email: _emailController.text,
+          year: _year,
+          semester: _semester,
+          hostel: _hostel,
         );
 
         if (_isEditMode) {
@@ -82,13 +107,26 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditMode ? 'Edit Student' : 'Add Student')),
+      appBar: AppBar(title: Text(_isEditMode ? 'Edit User' : 'Add User')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
+              DropdownButtonFormField<String>(
+                value: _role,
+                decoration: const InputDecoration(labelText: 'Role'),
+                items: ['STUDENT', 'MESS_MANAGER', 'ADMIN']
+                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    _role = val!;
+                    _generateEmail();
+                  });
+                },
+              ),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Name'),
@@ -96,17 +134,71 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
               ),
               TextFormField(
                 controller: _rollNoController,
-                decoration: const InputDecoration(labelText: 'Roll No'),
+                decoration: const InputDecoration(labelText: 'Roll No / Username'),
                 validator: (value) => value!.isEmpty ? 'Please enter roll no' : null,
               ),
-              TextFormField(
-                controller: _deptController,
-                decoration: const InputDecoration(labelText: 'Department'),
-              ),
+              if (_role == 'STUDENT') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _department,
+                        decoration: const InputDecoration(labelText: 'Department'),
+                        items: ['CSE', 'ECE']
+                            .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _department = val!;
+                            _generateEmail();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _hostel,
+                        decoration: const InputDecoration(labelText: 'Hostel'),
+                        items: ['BH1', 'BH2', 'GH1']
+                            .map((h) => DropdownMenuItem(value: h, child: Text(h)))
+                            .toList(),
+                        onChanged: (val) => setState(() => _hostel = val!),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: _year,
+                        decoration: const InputDecoration(labelText: 'Year'),
+                        items: [1, 2, 3, 4]
+                            .map((y) => DropdownMenuItem(value: y, child: Text('Year $y')))
+                            .toList(),
+                        onChanged: (val) => setState(() => _year = val!),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: _semester,
+                        decoration: const InputDecoration(labelText: 'Semester'),
+                        items: List.generate(8, (i) => i + 1)
+                            .map((s) => DropdownMenuItem(value: s, child: Text('Sem $s')))
+                            .toList(),
+                        onChanged: (val) => setState(() => _semester = val!),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
+                readOnly: _role == 'STUDENT', // Auto-generated for students
               ),
               TextFormField(
                 controller: _passwordController,
@@ -121,7 +213,7 @@ class _ManageStudentScreenState extends State<ManageStudentScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _saveStudent,
-                      child: Text(_isEditMode ? 'Update Student' : 'Save Student'),
+                      child: Text(_isEditMode ? 'Update User' : 'Save User'),
                     ),
             ],
           ),

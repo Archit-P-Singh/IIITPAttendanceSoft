@@ -44,8 +44,10 @@ public class DashboardController {
         // Better: Add a method in ReportService to count distinct dates.
         long daysFunctioned = reportService.countFunctioningDays(now.getYear(), now.getMonthValue());
 
-        // Total Students
-        long totalStudents = studentRepository.count();
+        // Total Students (Only Role.STUDENT)
+        long totalStudents = studentRepository.findAll().stream()
+                .filter(s -> s.getRole() == com.iiitp.attendance.model.Role.STUDENT)
+                .count();
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("lastMonthIncome", lastMonthIncome);

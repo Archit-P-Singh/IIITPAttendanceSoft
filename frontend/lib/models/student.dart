@@ -7,6 +7,9 @@ class Student {
   final String? password;
   final String? role;
   final String? email;
+  final int? year;
+  final int? semester;
+  final String? hostel;
 
   Student({
     this.studentId,
@@ -14,9 +17,12 @@ class Student {
     required this.rollNo,
     required this.qrCode,
     this.department,
-    this.password,
-    this.role,
+    required this.password,
+    required this.role,
     this.email,
+    this.year,
+    this.semester,
+    this.hostel,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
@@ -29,6 +35,9 @@ class Student {
       password: json['password'],
       role: json['role'],
       email: json['email'],
+      year: json['year'],
+      semester: json['semester'],
+      hostel: json['hostel'],
     );
   }
 
@@ -42,6 +51,9 @@ class Student {
       'password': password,
       'role': role,
       'email': email,
+      'year': year,
+      'semester': semester,
+      'hostel': hostel,
     };
   }
 }
