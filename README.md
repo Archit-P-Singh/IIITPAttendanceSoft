@@ -2,7 +2,7 @@
 
 **IIITPAttendanceSoft** is a comprehensive solution designed to digitize and streamline mess attendance and rebate calculations for IIIT Pune. By leveraging QR code technology, the system ensures accurate, real-time tracking of student meals, reducing manual errors and administrative overhead.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 *   **QR Code-Based Attendance**: Students scan a dynamically generated QR code to mark their attendance for meals.
@@ -18,7 +18,7 @@
 *   **Dashboard**: Visual analytics using charts to display attendance trends and meal consumption.
 *   **Reports**: Exportable data for administrative audits.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 *   **Framework**: [Spring Boot](https://spring.io/projects/spring-boot) (Java 22)
@@ -34,7 +34,7 @@
 *   **QR Generation**: `qr_flutter`
 *   **Charts**: `fl_chart`
 
-## 📋 Prerequisites
+## Prerequisites
 
 Ensure you have the following installed before setting up the project:
 
@@ -44,7 +44,7 @@ Ensure you have the following installed before setting up the project:
 *   **Maven**: For backend dependency management.
 *   **Git**: For version control.
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 ### 1. Database Setup
 1.  Install and start MySQL Server.
@@ -90,7 +90,7 @@ CREATE DATABASE attendance;
     flutter run
     ```
 
-## 📱 Usage Guide
+## Usage Guide
 
 1.  **Registration**:
     *   Students register with their Roll Number and details.
@@ -100,5 +100,5 @@ CREATE DATABASE attendance;
     *   **Mess Manager** opens the app -> Scans the Student's QR Code.
     *   Attendance is marked as "Present".
 
-## 📄 License
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
