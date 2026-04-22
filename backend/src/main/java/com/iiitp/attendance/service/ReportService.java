@@ -46,7 +46,7 @@ public class ReportService {
         } catch (Exception e) {
         }
 
-        // Wait, I should inject MessFeeService into ReportService too.
+        // Inject MessFeeService into ReportService too.
 
         double totalExpectedFee = 0;
         double totalRebate = 0;
