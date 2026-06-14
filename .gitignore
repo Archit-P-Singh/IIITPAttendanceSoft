@@ -24,3 +24,14 @@ hs_err_pid*
 replay_pid*
 
 .DS_Store
+
+# Environment Variables
+.env
+backend/.env
+
+# IDE and Build Folders
+.idea/
+.vscode/
+backend/target/
+frontend/build/
+frontend/.dart_tool/
