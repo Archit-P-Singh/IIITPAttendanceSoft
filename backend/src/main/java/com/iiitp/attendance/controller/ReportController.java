@@ -1,6 +1,9 @@
 package com.iiitp.attendance.controller;
 
 import com.iiitp.attendance.service.ReportService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.iiitp.attendance.config.RabbitMQConfig;
+import com.iiitp.attendance.model.ReportRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +16,11 @@ import java.util.Map;
 public class ReportController {
 
     private final ReportService reportService;
+    private final RabbitTemplate rabbitTemplate;
 
-    public ReportController(ReportService reportService) {
+    public ReportController(ReportService reportService, RabbitTemplate rabbitTemplate) {
         this.reportService = reportService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @GetMapping("/financial/monthly")
@@ -23,6 +28,16 @@ public class ReportController {
             @RequestParam int year,
             @RequestParam int month) {
         return ResponseEntity.ok(reportService.getMonthlyFinancialReport(year, month));
+    }
+
+    @PostMapping("/financial/monthly/async")
+    public ResponseEntity<String> generateMonthlyFinancialReportAsync(
+            @RequestBody ReportRequest request) {
+        
+        // Push task to RabbitMQ Queue
+        rabbitTemplate.convertAndSend(RabbitMQConfig.REPORT_EXCHANGE, RabbitMQConfig.REPORT_ROUTING_KEY, request);
+        
+        return ResponseEntity.accepted().body("Report generation has been queued successfully. You will receive an email shortly.");
     }
 
     @GetMapping("/student/{studentId}/monthly")
