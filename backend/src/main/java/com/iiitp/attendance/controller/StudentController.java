@@ -1,12 +1,18 @@
 package com.iiitp.attendance.controller;
 
 import com.iiitp.attendance.model.Student;
+import com.iiitp.attendance.model.OptOut;
+import com.iiitp.attendance.model.MealType;
+import com.iiitp.attendance.repository.OptOutRepository;
 import com.iiitp.attendance.service.StudentService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -16,10 +22,12 @@ public class StudentController {
 
     private final StudentService studentService;
     private final StringRedisTemplate redisTemplate;
+    private final OptOutRepository optOutRepository;
 
-    public StudentController(StudentService studentService, StringRedisTemplate redisTemplate) {
+    public StudentController(StudentService studentService, StringRedisTemplate redisTemplate, OptOutRepository optOutRepository) {
         this.studentService = studentService;
         this.redisTemplate = redisTemplate;
+        this.optOutRepository = optOutRepository;
     }
 
     @PostMapping
@@ -74,6 +82,29 @@ public class StudentController {
                     return ResponseEntity.ok(studentService.saveStudent(student));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/opt-out")
+    public ResponseEntity<?> optOut(@PathVariable Integer id,
+                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                    @RequestParam MealType mealType) {
+        
+        // Rule: Opt-out must be submitted by midnight of the day before the meal.
+        if (LocalDate.now().isAfter(date.minusDays(1))) {
+            return ResponseEntity.badRequest().body("You must opt-out at least one day in advance.");
+        }
+
+        return studentService.getStudentById(id).map(student -> {
+            if (optOutRepository.findByStudentAndDateAndMealType(student, date, mealType).isPresent()) {
+                return ResponseEntity.badRequest().body("Already opted out for this meal.");
+            }
+            OptOut optOut = new OptOut();
+            optOut.setStudent(student);
+            optOut.setDate(date);
+            optOut.setMealType(mealType);
+            optOutRepository.save(optOut);
+            return ResponseEntity.ok("Successfully opted out of " + mealType + " on " + date);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

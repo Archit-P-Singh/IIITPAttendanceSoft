@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import '../../services/api_service.dart';
 
 class MessManagerHome extends StatefulWidget {
@@ -41,6 +42,111 @@ class _MessManagerHomeState extends State<MessManagerHome> {
     }
   }
 
+  void _showPredictionDialog() {
+    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
+    String selectedMeal = 'LUNCH';
+    int? predictedHeadcount;
+    bool isLoadingPrediction = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Predict Headcount'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Select Date:'),
+                  ElevatedButton(
+                    onPressed: () async {
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
+                      );
+                      if (picked != null) {
+                        setDialogState(() {
+                          selectedDate = picked;
+                          predictedHeadcount = null;
+                        });
+                      }
+                    },
+                    child: Text(DateFormat('yyyy-MM-dd').format(selectedDate)),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Select Meal:'),
+                  DropdownButton<String>(
+                    value: selectedMeal,
+                    items: ['BREAKFAST', 'LUNCH', 'TEA', 'DINNER']
+                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setDialogState(() {
+                          selectedMeal = val;
+                          predictedHeadcount = null;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  if (isLoadingPrediction)
+                    const CircularProgressIndicator()
+                  else if (predictedHeadcount != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          const Text('Expected Headcount', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text('$predictedHeadcount', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green)),
+                        ],
+                      ),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () async {
+                        setDialogState(() => isLoadingPrediction = true);
+                        try {
+                          String dateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+                          final response = await http.get(
+                            Uri.parse('${ApiService.baseUrl}/manager/prediction?date=$dateStr&mealType=$selectedMeal'),
+                          );
+                          if (response.statusCode == 200) {
+                            final data = jsonDecode(response.body);
+                            setDialogState(() {
+                              predictedHeadcount = data['predictedHeadcount'];
+                            });
+                          }
+                        } catch (e) {
+                          print("Error fetching prediction: $e");
+                        } finally {
+                          setDialogState(() => isLoadingPrediction = false);
+                        }
+                      },
+                      child: const Text('Calculate Prediction'),
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,6 +175,16 @@ class _MessManagerHomeState extends State<MessManagerHome> {
                     '${_stats['totalStudents']}',
                     Icons.people,
                     Colors.orange,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.analytics),
+                    label: const Text('Predict Tomorrow\'s Food Quantity'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
+                    onPressed: _showPredictionDialog,
                   ),
                 ],
               ),
